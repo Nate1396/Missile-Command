@@ -1,24 +1,16 @@
 body {
-    font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+    height: 100%;
     margin: 0;
-    background-color: #000000;
 }
 
-#screen {
-    text-align: center;
-    background-color: #000000;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+body {
+    background: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-button {
-    padding: 10px 20px;
-    margin-top: 20px;
-    font-size: 16px;
-    cursor: pointer;
+canvas {
+    cursor: crosshair;
+    border: 1px solid white;
 }
