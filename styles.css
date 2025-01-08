@@ -13,4 +13,5 @@ body {
 canvas {
     cursor: crosshair;
     border: 1px solid white;
+    background-image: url("Missile command BG.png");
 }
