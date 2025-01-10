@@ -17,13 +17,6 @@ let counterMissiles = [];
 // information about each explosion
 let explosions = [];
 
-// how many missiles to spawn at each interval of the level (in this
-// case spawn 4 missiles at the start of level 1 and 4 more missiles
-// at the next interval of level 1)
-const levels = [ [4, 4] ];
-let currLevel = 0;
-let currInterval = 0;
-
 // the x/y position of all cities and if the city is currently alive
 let cities = [
   { x: 140, y: cityY, alive: true },
@@ -52,20 +45,22 @@ const missileSpawns = cities
   .concat([{ x: 0, y: 0 }, { x: canvas.width, y: 0 }])
   .map(pos => ({ x: pos.x, y: 0 }));
 
+// Load custom missile image
+const missileImage = new Image();
+missileImage.src = 'missile sprite.png';  // Path to your missile sprite image
+
+missileImage.onload = () => {
+  // Start the game loop when the image is loaded
+  requestAnimationFrame(loop);
+};
+
 // return a random integer between min (inclusive) and max (inclusive)
-// @see https://stackoverflow.com/a/1527820/2124254
 function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 // get the angle between two points
 function angleBetweenPoints(source, target) {
-
-  // atan2 returns the counter-clockwise angle in respect to the
-  // x-axis, but the canvas rotation system is based on the y-axis
-  // (rotation of 0 = up).
-  // so we need to add a quarter rotation to return a
-  // counter-clockwise rotation in respect to the y-axis
   return Math.atan2(target.y - source.y, target.x - source.x) + Math.PI / 2;
 }
 
@@ -75,7 +70,6 @@ function distance(source, target) {
 }
 
 // spawn a missile by choosing a spawn point and a target.
-// a missile can target any city or silo
 function spawnMissile() {
   const targets = cities.concat(silos);
 
@@ -86,41 +80,31 @@ function spawnMissile() {
   const angle = angleBetweenPoints(start, target);
 
   missiles.push({
-    start,  // where the missile started
-    target, // where the missile is going
-    pos: { x: start.x, y: start.y },  // current position
-    alive: true,  // if we should still draw the missile
-
-    // used to update the position every frame
+    start,
+    target,
+    pos: { x: start.x, y: start.y },
+    alive: true,
     dx: missileSpeed * Math.sin(angle),
     dy: missileSpeed * -Math.cos(angle)
   });
 }
 
 // game loop
-// start at -2 seconds (time is in milliseconds) to give the player 1
-// second before the missiles start
 let lastTime = -2000;
 function loop(time) {
   requestAnimationFrame(loop);
-  context.clearRect(0,0,canvas.width,canvas.height);
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  
 
-  // spawn missiles every interval of 3 seconds (if the level allows
-  // more missiles)
-  if (time - lastTime > 3000 && currInterval < levels[currLevel].length) {
-    for (let i = 0; i < levels[currLevel][currInterval]; i++) {
-      spawnMissile();
-    }
-
-    currInterval++;
+  // spawn missiles every interval of 3 seconds
+  if (time - lastTime > 2000) {
+    spawnMissile();
     lastTime = time;
   }
 
   // draw cities
   context.fillStyle = 'blue';
   cities.forEach(city => {
-
-    // center the city on the x position
     context.fillRect(city.x - cityWidth / 2, city.y, cityWidth, cityHeight);
   });
 
@@ -129,61 +113,24 @@ function loop(time) {
   context.beginPath();
   context.moveTo(0, canvas.height);
   context.lineTo(0, groundY);
-
-  // draw each silo hill
   siloPos.forEach(x => {
     context.lineTo(x - 40, groundY);
     context.lineTo(x - 20, siloY);
     context.lineTo(x + 20, siloY);
     context.lineTo(x + 40, groundY);
   });
-
   context.lineTo(canvas.width, groundY);
   context.lineTo(canvas.width, canvas.height);
   context.fill();
 
-  // draw the number of counter-missiles each silo
-  context.fillStyle = 'black';
-  silos.forEach(silo => {
-
-    // draw missiles in a triangular shape by incrementing how many
-    // missiles we can draw per row
-    let missilesPerRow = 1;
-    let count = 0;
-    let x = silo.x;
-    let y = silo.y + 5;
-
-    for (let i = 0; i < silo.missiles; i++) {
-      context.fillRect(x, y, 4, 10);
-      x += 12;
-
-      if (++count === missilesPerRow) {
-        x = silo.x - 6 * count;
-        missilesPerRow++;
-        y += 7;
-        count = 0;
-      }
-    }
-  });
-
-  // update and draw missiles
+  // draw missiles
   context.strokeStyle = 'red';
-  context.lineWidth = 2;
-
-  // update color based on time so it "blinks"
-  // by dividing by a number and seeing if it's odd or even we can
-  // change the speed of the blinking
-  context.fillStyle = 'white';
-  if (Math.round(time / 2) % 2 === 0) {
-    context.fillStyle = 'black';
-  }
+  context.lineWidth = 4;
 
   missiles.forEach(missile => {
     missile.pos.x += missile.dx;
     missile.pos.y += missile.dy;
 
-    // check if the missile hit an explosion by doing a circle-circle
-    // collision check
     explosions.forEach(explosion => {
       const dist = distance(explosion, missile.pos);
       if (dist < missileSize + explosion.size) {
@@ -191,7 +138,6 @@ function loop(time) {
       }
     });
 
-    // if missile is close the the target we blow it up
     const dist = distance(missile.pos, missile.target);
     if (dist < missileSpeed) {
       missile.alive = false;
@@ -204,11 +150,23 @@ function loop(time) {
       context.lineTo(missile.pos.x, missile.pos.y);
       context.stroke();
 
-      // center the head of the missile to the x/y position
-      context.fillRect(missile.pos.x - missileSize / 2, missile.pos.y - missileSize / 2, missileSize, missileSize);
-    }
-    // a dead missile spawns an explosion
-    else {
+      // Flip the canvas and draw the missile image
+      const missileWidth = missileImage.width / 4;  // Adjust size as necessary
+      const missileHeight = missileImage.height / 4;  // Adjust size as necessary
+
+      context.save();  // Save the current context state
+
+      // Move the canvas origin to where the missile will be drawn
+      context.translate(missile.pos.x, missile.pos.y);
+      
+      // Flip the canvas vertically
+      context.scale(1, -1);
+
+      // Draw the missile image, correcting for the flip
+      context.drawImage(missileImage, -missileWidth / 2, -missileHeight / 2, missileWidth, missileHeight);
+
+      context.restore();  // Restore the original context state
+    } else {
       explosions.push({
         x: missile.pos.x,
         y: missile.pos.y,
@@ -226,7 +184,6 @@ function loop(time) {
     missile.pos.x += missile.dx;
     missile.pos.y += missile.dy;
 
-    // if missile is close the the target we blow it up
     const dist = distance(missile.pos, missile.target);
     if (dist < counterMissileSpeed) {
       missile.alive = false;
@@ -237,13 +194,11 @@ function loop(time) {
         dir: 1,
         alive: true
       });
-    }
-    else {
+    } else {
       context.beginPath();
       context.moveTo(missile.start.x, missile.start.y);
       context.lineTo(missile.pos.x, missile.pos.y);
       context.stroke();
-
       context.fillRect(missile.pos.x - 2, missile.pos.y - 2, 4, 4);
     }
   });
@@ -251,22 +206,11 @@ function loop(time) {
   // update and draw explosions
   explosions.forEach(explosion => {
     explosion.size += 0.35 * explosion.dir;
-
-    // change the direction of the explosion to wane
-    if (explosion.size > 30) {
-      explosion.dir = -1;
-    }
-
-    // remove the explosion
-    if (explosion.size <= 0) {
-      explosion.alive = false;
-    }
+    if (explosion.size > 30) explosion.dir = -1;
+    if (explosion.size <= 0) explosion.alive = false;
     else {
       context.fillStyle = 'white';
-      if (Math.round(time / 3) % 2 === 0) {
-        context.fillStyle = 'blue';
-      }
-
+      if (Math.round(time / 3) % 2 === 0) context.fillStyle = 'blue';
       context.beginPath();
       context.arc(explosion.x, explosion.y, explosion.size, 0, 2 * Math.PI);
       context.fill();
@@ -279,20 +223,30 @@ function loop(time) {
   explosions = explosions.filter(explosion => explosion.alive);
   cities = cities.filter(city => city.alive);
   silos = silos.filter(silo => silo.alive);
+
+  // Draw ammo for each silo (counter-missiles)
+  silos.forEach(silo => {
+    context.fillStyle = 'black';
+    context.font = '14px Arial';
+    context.fillText(`Ammo: ${silo.missiles}`, silo.x - 20, silo.y + 15);
+  });
+
+  // Game Over: if no cities or silos are left
+  if (cities.length === 0 && silos.length === 0) {
+    context.fillStyle = 'red';
+    context.font = '30px Arial';
+    context.fillText('Game Over', canvas.width / 2 - 90, canvas.height / 2);
+    return;  // Stop the game loop
+  }
 }
 
 // listen to mouse events to fire counter-missiles
 canvas.addEventListener('click', e => {
-  // get the x/y position of the mouse pointer by subtracting the x/y
-  // position of the canvas element from the x/y position of the
-  // pointer
   const x = e.clientX - e.target.offsetLeft;
   const y = e.clientY - e.target.offsetTop;
 
-  // determine which silo is closest to the pointer and fire a
-  // counter-missile from it
   let launchSilo = null;
-  let siloDistance = Infinity;  // start at the largest number
+  let siloDistance = Infinity;
   silos.forEach(silo => {
     const dist = distance({ x, y }, silo);
     if (dist < siloDistance && silo.missiles) {
@@ -309,7 +263,7 @@ canvas.addEventListener('click', e => {
     counterMissiles.push({
       start,
       target,
-      pos: { x: launchSilo.x, y: launchSilo. y},
+      pos: { x: launchSilo.x, y: launchSilo.y },
       dx: counterMissileSpeed * Math.sin(angle),
       dy: counterMissileSpeed * -Math.cos(angle),
       alive: true
@@ -317,5 +271,7 @@ canvas.addEventListener('click', e => {
   }
 });
 
-// start the game
-requestAnimationFrame(loop);
+// Start the game after the image loads
+missileImage.onload = function () {
+  requestAnimationFrame(loop);
+};
