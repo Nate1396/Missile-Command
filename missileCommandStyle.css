@@ -1,10 +1,16 @@
 body {
-    background-color: white;
+    background-color: rgb(5, 5, 5);
     display: flex;
     align-items: center;
     justify-content: center;
+    height: 500px;
+    margin: 0;
 }
 
 canvas {
     background-color: black;
+    max-width: 800px;
+    max-height: 600px;
+    width: 100%;
+    height: auto;
 }
