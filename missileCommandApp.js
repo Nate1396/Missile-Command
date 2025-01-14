@@ -27,9 +27,29 @@ class Silo {
     constructor(ix, iy){
         this.alive = true;
         this.position = {x:ix, y:iy};
-        this.angle = 90;
+        this.angle = Math.PI / 2; // Angle of the turret
         this.ammo = startingAmmo;
         this.diameter = 100;
+        this.radius = 50; // Half of the diameter, used for positioning
+    }
+
+    // Draw the turret on top of the silo's circle
+    drawTurret() {
+        const turretLength = 30;
+        const turretWidth = 10;
+
+        const turretX = this.position.x;
+        const turretY = canvas.height - this.position.y - this.radius;
+
+        context.save();
+        context.translate(turretX, turretY);
+        context.rotate(this.angle);
+
+        // Draw the turret barrel
+        context.fillStyle = 'gray';
+        context.fillRect(0, -turretWidth / 2, turretLength, turretWidth);
+
+        context.restore();
     }
 }
 
@@ -37,7 +57,8 @@ class AttackMissile {
     constructor(ix, iy, fx, fy){
         this.position = {x:ix, y:iy};
         this.destination = {x:fx, y:fy};
-        this.vector = {dx:fx-ix, dy:fy-iy}
+        this.vector = {dx:fx-ix, dy:fy-iy};
+        
     }
 }
 
@@ -45,14 +66,15 @@ class DefenseMissile {
     constructor(ix, iy, fx, fy){
         this.position = {x:ix, y:iy};
         this.destination = {x:fx, y:fy};
-        this.vector = {dx:fx-ix, dy:fy-iy}
+        this.vector = {dx:fx-ix, dy:fy-iy};
     }
 }
 
 class Explosion {
     constructor(ix, iy){
         this.center = {x:ix, y:iy};
-        this.radius = 0;}
+        this.radius = 0;
+    }
 }
 
 function randInt(min, max) {
@@ -60,45 +82,47 @@ function randInt(min, max) {
 }
 
 function angleBetweenPoints(source, target) {
-    return Math.atan2(target.y - source.y, target.x - source.x) + Math.PI / 2;
-  }
+    return Math.atan2(target.y - source.y, target.x - source.x);
+}
   
 function distance(source, target) {
     return Math.hypot(source.x - target.x, source.y - target.y);
-  }
+}
 
 function render(){
-    context.clearRect(0, 0, canvas.width, canvas.height)
+    context.clearRect(0, 0, canvas.width, canvas.height);
     context.fillStyle = "green";
-    context.fillRect(0,canvas.height-groundY,canvas.width,groundY);
+    context.fillRect(0, canvas.height - groundY, canvas.width, groundY);
     context.fillStyle = "blue";
-    for (i = 0; i < cities.length;i++){
-        context.fillRect(cities[i].position.x,canvas.height-cities[i].position.y-cities[i].height,cities[i].width,cities[i].height)
+    for (let i = 0; i < cities.length; i++){
+        context.fillRect(cities[i].position.x, canvas.height - cities[i].position.y - cities[i].height, cities[i].width, cities[i].height);
     }
-    for (i = 0; i < silos.length; i++){
+    for (let i = 0; i < silos.length; i++){
+        
         context.beginPath();
-        context.arc(silos[i].position.x, canvas.height-silos[i].position.y, 50, Math.PI, 0);
+        context.arc(silos[i].position.x, canvas.height - silos[i].position.y, silos[i].radius, Math.PI, 0);
         context.fillStyle = "red";
         context.fill();
         context.stroke();
 
+        
+        silos[i].drawTurret();
     }
-   
-
 }
 
-for (i=0;i<3;i++){
-    cities.push(new City(225+i*100,groundY));
-
+for (let i = 0; i < 3; i++){
+    cities.push(new City(225 + i * 100, groundY));
 }
 
-for (i=0;i<3;i++){
-    cities.push(new City(725+i*100,groundY));
-
+for (let i = 0; i < 3; i++){
+    cities.push(new City(725 + i * 100, groundY));
 }
 
-for (i=0;i<3;i++){
-    silos.push(new Silo(112.5+487.5*i,groundY));
+for (let i = 0; i < 3; i++){
+    silos.push(new Silo(112.5 + 487.5 * i, groundY));
 }
+
+
+canvas.style.cursor = 'crosshair';
 
 render();
