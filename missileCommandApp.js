@@ -27,25 +27,24 @@ class Silo {
     constructor(ix, iy){
         this.alive = true;
         this.position = {x:ix, y:iy};
-        this.angle = Math.PI / 2; // Angle of the turret
+        this.angle = Math.PI / 2; 
         this.ammo = startingAmmo;
         this.diameter = 100;
-        this.radius = 50; // Half of the diameter, used for positioning
+        this.radius = 50; 
     }
 
-    // Draw the turret on top of the silo's circle
+    
     drawTurret() {
         const turretLength = 30;
         const turretWidth = 10;
-
         const turretX = this.position.x;
-        const turretY = canvas.height - this.position.y - this.radius;
+        const turretY = canvas.height - this.position.y - this.radius - 18;
 
         context.save();
         context.translate(turretX, turretY);
         context.rotate(this.angle);
 
-        // Draw the turret barrel
+        
         context.fillStyle = 'gray';
         context.fillRect(0, -turretWidth / 2, turretLength, turretWidth);
 
@@ -58,6 +57,7 @@ class AttackMissile {
         this.position = {x:ix, y:iy};
         this.destination = {x:fx, y:fy};
         this.vector = {dx:fx-ix, dy:fy-iy};
+        target.City =
         
     }
 }
