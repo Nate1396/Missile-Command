@@ -57,7 +57,7 @@ class AttackMissile {
         this.position = {x:ix, y:iy};
         this.destination = {x:fx, y:fy};
         this.vector = {dx:fx-ix, dy:fy-iy};
-        target.City =
+       
         
     }
 }
