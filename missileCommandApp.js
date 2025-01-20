@@ -35,7 +35,6 @@ class Silo {
         this.alive = true;
         this.position = {x:ix, y:iy};
         this.angle = 90;
-        this.ammo = startingAmmo;
         this.diameter = 100;
     }
 
@@ -79,7 +78,26 @@ class DefenseMissile {
     constructor(ix, iy, fx, fy){
         this.start = {x:ix, y:iy};
         this.destination = {x:fx, y:fy};
-        this.vector = {dx:fx-ix, dy:fy-iy};
+        this.position = {x:ix, y:iy};
+        this.xSide = (this.destination.x - this.start.x);
+        this.ySide = (this.destination.y - this.start.y);
+        this.speed = 15;
+        this.dx = this.speed*this.xSide/(Math.sqrt(this.xSide**2+this.ySide**2));
+        this.dy = this.speed*this.ySide/(Math.sqrt(this.xSide**2+this.ySide**2));
+
+    }
+
+    drawMissile() {
+        context.lineWidth = 5;
+        context.strokeStyle = "blue";
+        context.moveTo(this.start.x, this.start.y);
+        context.lineTo(this.position.x, this.position.y);
+        context.stroke();
+    }
+
+    move() {
+        this.position.x += this.dx;
+        this.position.y += this.dy;
     }
 }
 
@@ -129,6 +147,10 @@ function render(){
     for (i = 0; i < aMissiles.length; i++){
         aMissiles[i].drawMissile();
     }
+
+    for (i = 0; i < dMissiles.length; i++){
+        dMissiles[i].drawMissile();
+    }
 }
 
 for (let i=0;i<3;i++){
@@ -141,10 +163,17 @@ for (let i=0;i<3;i++){
 
 }
 
-for (let i=0;i<3;i++){
-    silos.push(new Silo(112.5+487.5*i,650));
-}
 
+silos.push(new Silo(112.5+487.5*1,650));
+
+
+canvas.addEventListener('click', (e) => {
+    const mouseX = e.clientX - canvas.offsetLeft;
+    const mouseY = e.clientY - canvas.offsetTop;
+
+    const missile = new DefenseMissile(silos[0].position.x, silos[0].position.y, mouseX, mouseY);
+    dMissiles.push(missile);
+});
 
 
 function gameLoop(){
@@ -167,6 +196,16 @@ function gameLoop(){
         
     }
 
+    for (i = 0; i < dMissiles.length; i++){
+        if (dMissiles[i].position.y>dMissiles[i].destination.y){
+            dMissiles[i].move();
+        } else {
+            explosions.push(new Explosion(dMissiles[i].position.x,dMissiles[i].position.y));
+            dMissiles.splice(i,1);
+        }
+        
+    }
+
     for (i = 0; i < explosions.length; i++){
         if (explosions[i].radius < 30){
             explosions[i].radius += 0.25;
@@ -178,6 +217,7 @@ function gameLoop(){
         }
     }    
 
+    for (i=0;i<explosions.length; i++){}
     
     requestAnimationFrame(gameLoop);
 
