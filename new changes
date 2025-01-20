@@ -84,7 +84,6 @@ class DefenseMissile {
         this.speed = 15;
         this.dx = this.speed*this.xSide/(Math.sqrt(this.xSide**2+this.ySide**2));
         this.dy = this.speed*this.ySide/(Math.sqrt(this.xSide**2+this.ySide**2));
-
     }
 
     drawMissile() {
@@ -174,9 +173,15 @@ canvas.addEventListener('click', (e) => {
 function gameLoop(){
     render();
 
+    // Only spawn attack missiles targeting live cities
     let RandomMissileSpawn = randInt(0, 300);
     if (RandomMissileSpawn < 3){
-        aMissiles.push(new AttackMissile(randInt(0, 1200), 0, cities[randInt(0, cities.length-1)].position.x+25, 600));
+        // Filter out dead cities for target selection
+        const liveCities = cities.filter(city => city.alive);
+        if (liveCities.length > 0) {
+            const targetCity = liveCities[randInt(0, liveCities.length-1)];
+            aMissiles.push(new AttackMissile(randInt(0, 1200), 0, targetCity.position.x+25, 600));
+        }
     }
     
     for (i = 0; i < aMissiles.length; i++){
@@ -193,8 +198,7 @@ function gameLoop(){
                     aMissiles[i].position.x <= city.position.x + city.width &&
                     aMissiles[i].position.y >= city.position.y &&
                     aMissiles[i].position.y <= city.position.y + city.height) {
-                    cities.splice(j, 1);  // Remove the city from the array
-                    j--;  // Adjust index after removal
+                    city.alive = false;  // Mark the city as destroyed, but keep it in the array
                 }
             }
 
