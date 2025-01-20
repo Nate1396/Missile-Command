@@ -104,7 +104,8 @@ class DefenseMissile {
 class Explosion {
     constructor(ix, iy){
         this.center = {x:ix, y:iy};
-        this.radius = 0};
+        this.radius = 0;
+    }
 
     drawExplosion(){
         context.beginPath();
@@ -112,6 +113,41 @@ class Explosion {
         context.fillStyle = "white";
         context.fill();
         context.stroke();
+    }
+
+    checkCollisionWithCities() {
+        for (let i = 0; i < cities.length; i++) {
+            if (cities[i].alive) {
+                let closestX;
+                const closestY = cities[i].position.y;
+                if (this.center.x < cities[i].position.x){
+                    closestX = cities[i].position.x;
+                } else if (this.center.x > cities[i].position.x + cities[i].width) {
+                    closestX = cities[i].position.x + cities[i].width;
+                } else {
+                    closestX = this.center.x;
+                }
+
+                const distanceToCity = Math.hypot(this.center.x - closestX, this.center.y - closestY);
+
+                if (distanceToCity <= this.radius) {
+                    cities[i].alive = false;
+                }
+            }
+        }
+    }
+
+    checkCollisionWithMissiles() {
+        for (let i = 0; i < aMissiles.length; i++) {
+            const distanceToMissile = Math.hypot(this.center.x - aMissiles[i].position.x, this.center.y - aMissiles[i].position.y);
+
+            if (distanceToMissile <= this.radius) {
+                explosions.push(new Explosion(aMissiles[i].position.x,aMissiles[i].position.y));
+                aMissiles.splice(i,1);
+                i --;
+            }
+            
+        }
     }
 }
 
@@ -180,8 +216,8 @@ function gameLoop(){
     render();
 
    
-    let RandomMissileSpawn = randInt(0,300);
-    if (RandomMissileSpawn < 3){
+    let RandomMissileSpawn = randInt(0,400);
+    if (RandomMissileSpawn < 2){
         aMissiles.push(new AttackMissile(randInt(0,1200), 0, cities[randInt(0,cities.length-1)].position.x+25,600));
 
     }
@@ -190,6 +226,7 @@ function gameLoop(){
         if (aMissiles[i].position.y<600){
             aMissiles[i].move();
         } else {
+            
             explosions.push(new Explosion(aMissiles[i].position.x,aMissiles[i].position.y));
             aMissiles.splice(i,1);
         }
@@ -207,13 +244,16 @@ function gameLoop(){
     }
 
     for (i = 0; i < explosions.length; i++){
-        if (explosions[i].radius < 30){
-            explosions[i].radius += 0.25;
+        explosions[i].checkCollisionWithCities();
+        explosions[i].checkCollisionWithMissiles();
+        if (explosions[i].radius < 15){
+            explosions[i].radius += 1;
         } 
-        else if (explosions[i].radius < 31) {
-           explosions[i].radius += 0.02;
+        else if (explosions[i].radius < 16) {
+           explosions[i].radius += 0.05;
         } else {
             explosions.splice(i,1);
+            i--;
         }
     }    
 
