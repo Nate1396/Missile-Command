@@ -1,10 +1,12 @@
+/* Styles appliqués à l'élément <body> */
 body {
-    background-color: white;
+    background-color: white; 
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
+/* Styles appliqués à l'élément <canvas> */
 canvas {
     background-color: black;
 }
