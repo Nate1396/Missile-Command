@@ -55,8 +55,8 @@ class AttackMissile {
         this.position = {x:ix, y:iy};
         this.xSide = (this.destination.x - this.start.x);
         this.ySide = (this.destination.y - this.start.y);
-        this.dx = this.xSide*2/(Math.sqrt(this.xSide**2+this.ySide**2));
-        this.dy = this.ySide*2/(Math.sqrt(this.xSide**2+this.ySide**2));
+        this.dx = this.xSide/(Math.sqrt(this.xSide**2+this.ySide**2));
+        this.dy = this.ySide/(Math.sqrt(this.xSide**2+this.ySide**2));
     }
 
     drawMissile(){
@@ -81,7 +81,7 @@ class DefenseMissile {
         this.position = {x:ix, y:iy};
         this.xSide = (this.destination.x - this.start.x);
         this.ySide = (this.destination.y - this.start.y);
-        this.speed = 7;
+        this.speed = 15;
         this.dx = this.speed*this.xSide/(Math.sqrt(this.xSide**2+this.ySide**2));
         this.dy = this.speed*this.ySide/(Math.sqrt(this.xSide**2+this.ySide**2));
 
@@ -281,7 +281,7 @@ function gameLoop(){
         if (dMissiles[i].position.y>dMissiles[i].destination.y){
             dMissiles[i].move();
         } else {
-            explosions.push(new Explosion(dMissiles[i].position.x,dMissiles[i].position.y,16));
+            explosions.push(new Explosion(dMissiles[i].position.x,dMissiles[i].position.y,32));
             dMissiles.splice(i,1);
         }
         
