@@ -1,14 +1,24 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Missile Command</title>
-    <link rel="stylesheet" href="missileCommandStyle.css">
-</head>
-<body>
-    <canvas width="1200" height = "750" id = "game"></canvas>
-    <script src="missileCommandApp.js" ></script>
+<!DOCTYPE html> <!-- Déclare le type de document comme HTML5, essentiel pour les navigateurs modernes. -->
+<html lang="fr"> <!-- Déclare la langue principale du document comme étant le français. -->
 
+<head>
+    <!-- Métadonnées du document -->
+    <meta charset="UTF-8"> <!-- Définit l'encodage des caractères pour permettre une prise en charge correcte des caractères spéciaux (comme les accents). -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Assure une mise en page adaptée aux appareils mobiles (responsive design). -->
+    <title>Missile Command</title> <!-- Définit le titre de la page qui apparaîtra dans l'onglet du navigateur. -->
+    
+    <!-- Lien vers la feuille de style externe pour styliser la page -->
+    <link rel="stylesheet" href="missileCommandStyle.css"> <!-- Inclut le fichier CSS pour l'apparence du jeu (le fichier CSS est externe). -->
+</head>
+
+<body>
+    <!-- Corps de la page contenant le jeu -->
+    
+    <!-- Le canvas où le jeu sera affiché -->
+    <canvas width="1200" height="750" id="game"></canvas> <!-- Déclare un élément <canvas> avec une largeur de 1200px et une hauteur de 750px. L'attribut id="game" permet d'identifier cet élément dans le script JavaScript. -->
+    
+    <!-- Le fichier JavaScript contenant la logique du jeu -->
+    <script src="missileCommandApp.js"></script> <!-- Lien vers le fichier JavaScript où le code du jeu (comme la logique des missiles, explosions, etc.) est écrit. -->
 </body>
+
 </html>
