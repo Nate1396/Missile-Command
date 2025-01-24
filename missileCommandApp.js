@@ -6,34 +6,11 @@ const groundY = 100;
 let score = 0;
 let highScore = 0;
 
-const DefenseMissileSpeed = 1;
-const AttackMissileSpeed = 15;
-
 let cities = [];
 let silos = [];
 let aMissiles = [];
 let dMissiles = [];
 let explosions = [];  
-
-function difficulty() {
-if (score >= 5)
-    AttackMissileSpeed = 20 // easy
-else
-if (score >= 10)
-    AttackMissileSpeed = 30 //mediuum
-else if (score >= 15)
-    AttackMissileSpeed = 40 //hard
-}
-
-
-
-
-
-
-
-
-
-
 
 class City {
     constructor(ax, ay){
